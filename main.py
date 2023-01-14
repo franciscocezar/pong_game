@@ -22,6 +22,7 @@ ball_x_direction = 1
 ball_y_direction = 1
 ball_speed = 2
 ball_y_speed = 2
+score = 0
 
 
 def update_ai(ball_y, computer_y):
@@ -33,13 +34,14 @@ def update_ai(ball_y, computer_y):
     return computer_y
 
 
-def check_collisions(ball, player, computer, ball_x_direction):
-    if ball.colliderect(player):
+def check_collisions(ball, player, computer, ball_x_direction, score):
+    if ball.colliderect(player) and ball_x_direction == -1:
         ball_x_direction = 1
-    elif ball.colliderect(computer):
+        score += 1
+    elif ball.colliderect(computer) and ball_x_direction == 1:
         ball_x_direction = -1
-
-    return ball_x_direction
+        score += 1
+    return ball_x_direction, score
 
 
 def update_ball(ball_x_direction, ball_y_direction, ball_x, ball_y, ball_speed, ball_y_speed):
@@ -79,14 +81,22 @@ while running:
     player = pygame.draw.rect(screen, white, [5, player_y, 10, 40])
     computer = pygame.draw.rect(screen, white, [285, computer_y, 10, 40])
     ball = pygame.draw.rect(screen, white, [ball_x, ball_y, 10, 10])
+    score_text = font.render(f'Score: {score}', True, white, black)
+    screen.blit(score_text, (80, 20))
+
     if not game_over:
         computer_y = update_ai(ball_y, computer_y)
         ball_x_direction, ball_y_direction, ball_x, ball_y = update_ball(ball_x_direction, ball_y_direction, ball_x, ball_y, ball_speed, ball_y_speed)
-    ball_x_direction = check_collisions(ball, player, computer, ball_x_direction)
+    ball_x_direction, score = check_collisions(ball, player, computer, ball_x_direction, score)
 
     if game_over:
         game_over_text = font.render('Game Over!', True, white, black)
-        screen.blit(game_over_text, (80, 130))
+        screen.blit(game_over_text, (80, 100))
+
+        restart_button = pygame.draw.rect(screen, black, [62, 200, 100, 20])
+        restart_text = font.render('Press to restart', True, white, black)
+        screen.blit(restart_text, (61, 200))
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -101,6 +111,20 @@ while running:
                 player_direction = 0
             if event.key == pygame.K_x:
                 player_direction = 0
+        if event.type == pygame.MOUSEBUTTONDOWN and game_over:
+            if restart_button.collidepoint(event.pos):
+                game_over = False
+                player_y = 130
+                computer_y = 130
+                ball_x = 145
+                ball_y = 145
+                player_direction = 0
+                player_speed = 5
+                ball_x_direction = 1
+                ball_y_direction = 1
+                ball_speed = 2
+                ball_y_speed = 2
+                score = 0
 
     player_y += player_speed * player_direction
 
