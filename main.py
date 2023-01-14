@@ -1,4 +1,5 @@
 import pygame
+from random import randint
 
 pygame.init()
 
@@ -10,7 +11,7 @@ framerate = 60
 black = (0, 0, 0)
 white = (255, 255, 255)
 game_over = False
-font = pygame.font.SysFont('arial', 27)
+font = pygame.font.SysFont('arial', 25)
 
 player_y = 130
 computer_y = 130
@@ -20,9 +21,10 @@ player_direction = 0
 player_speed = 5
 ball_x_direction = 1
 ball_y_direction = 1
-ball_speed = 2
+ball_speed = 3
 ball_y_speed = 2
 score = 0
+ball_color = white
 
 
 def update_ai(ball_y, computer_y):
@@ -35,13 +37,15 @@ def update_ai(ball_y, computer_y):
 
 
 def check_collisions(ball, player, computer, ball_x_direction, score):
+    global ball_color
     if ball.colliderect(player) and ball_x_direction == -1:
         ball_x_direction = 1
         score += 1
+        ball_color = (randint(1, 255), randint(0, 255), randint(0, 255))
     elif ball.colliderect(computer) and ball_x_direction == 1:
         ball_x_direction = -1
         score += 1
-    return ball_x_direction, score
+    return ball_x_direction, score, ball_color
 
 
 def update_ball(ball_x_direction, ball_y_direction, ball_x, ball_y, ball_speed, ball_y_speed):
@@ -80,14 +84,14 @@ while running:
     game_over = check_game_over(ball_x, game_over)
     player = pygame.draw.rect(screen, white, [5, player_y, 10, 40])
     computer = pygame.draw.rect(screen, white, [285, computer_y, 10, 40])
-    ball = pygame.draw.rect(screen, white, [ball_x, ball_y, 10, 10])
+    ball = pygame.draw.rect(screen, ball_color, [ball_x, ball_y, 10, 10])
     score_text = font.render(f'Score: {score}', True, white, black)
     screen.blit(score_text, (80, 20))
 
     if not game_over:
         computer_y = update_ai(ball_y, computer_y)
         ball_x_direction, ball_y_direction, ball_x, ball_y = update_ball(ball_x_direction, ball_y_direction, ball_x, ball_y, ball_speed, ball_y_speed)
-    ball_x_direction, score = check_collisions(ball, player, computer, ball_x_direction, score)
+    ball_x_direction, score, ball_color = check_collisions(ball, player, computer, ball_x_direction, score)
 
     if game_over:
         game_over_text = font.render('Game Over!', True, white, black)
@@ -122,13 +126,13 @@ while running:
                 player_speed = 5
                 ball_x_direction = 1
                 ball_y_direction = 1
-                ball_speed = 2
+                ball_speed = 3
                 ball_y_speed = 2
                 score = 0
 
     player_y += player_speed * player_direction
-
-
+    ball_speed = 2 + (score//10)
+    ball_y_speed = 2 + (score//15)
 
     pygame.display.flip()
 
