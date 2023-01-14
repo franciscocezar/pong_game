@@ -9,6 +9,8 @@ timer = pygame.time.Clock()
 framerate = 60
 black = (0, 0, 0)
 white = (255, 255, 255)
+game_over = False
+font = pygame.font.SysFont('arial', 27)
 
 player_y = 130
 computer_y = 130
@@ -62,17 +64,29 @@ def update_ball(ball_x_direction, ball_y_direction, ball_x, ball_y, ball_speed, 
     return ball_x_direction, ball_y_direction, ball_x, ball_y
 
 
+def check_game_over(ball_x, game_over):
+    if (ball_x <= 0 or ball_x >= 290) and game_over == False:
+        game_over = True
+
+    return game_over
+
+
 running = True
 while running:
     timer.tick(framerate)
     screen.fill(black)
+    game_over = check_game_over(ball_x, game_over)
     player = pygame.draw.rect(screen, white, [5, player_y, 10, 40])
     computer = pygame.draw.rect(screen, white, [285, computer_y, 10, 40])
     ball = pygame.draw.rect(screen, white, [ball_x, ball_y, 10, 10])
-    computer_y = update_ai(ball_y, computer_y)
-
-    ball_x_direction, ball_y_direction, ball_x, ball_y = update_ball(ball_x_direction, ball_y_direction, ball_x, ball_y, ball_speed, ball_y_speed)
+    if not game_over:
+        computer_y = update_ai(ball_y, computer_y)
+        ball_x_direction, ball_y_direction, ball_x, ball_y = update_ball(ball_x_direction, ball_y_direction, ball_x, ball_y, ball_speed, ball_y_speed)
     ball_x_direction = check_collisions(ball, player, computer, ball_x_direction)
+
+    if game_over:
+        game_over_text = font.render('Game Over!', True, white, black)
+        screen.blit(game_over_text, (80, 130))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
