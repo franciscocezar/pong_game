@@ -3,7 +3,10 @@ from random import randint
 
 pygame.init()
 
-screen = pygame.display.set_mode([300, 300])
+WIDTH = 300
+HEIGHT = 300
+
+screen = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.display.set_caption('Pong Reboot')
 
 timer = pygame.time.Clock()
@@ -11,7 +14,7 @@ framerate = 60
 black = (0, 0, 0)
 white = (255, 255, 255)
 game_over = False
-font = pygame.font.SysFont('arial', 25)
+font = pygame.font.SysFont('arial', 22)
 
 player_y = 130
 computer_y = 130
@@ -21,7 +24,7 @@ player_direction = 0
 player_speed = 5
 ball_x_direction = 1
 ball_y_direction = 1
-ball_speed = 3
+ball_speed = 2
 ball_y_speed = 2
 score = 0
 ball_color = white
@@ -86,21 +89,21 @@ while running:
     computer = pygame.draw.rect(screen, white, [285, computer_y, 10, 40])
     ball = pygame.draw.rect(screen, ball_color, [ball_x, ball_y, 10, 10])
     score_text = font.render(f'Score: {score}', True, white, black)
-    screen.blit(score_text, (80, 20))
+    screen.blit(score_text, (99, 10))
 
     if not game_over:
         computer_y = update_ai(ball_y, computer_y)
-        ball_x_direction, ball_y_direction, ball_x, ball_y = update_ball(ball_x_direction, ball_y_direction, ball_x, ball_y, ball_speed, ball_y_speed)
+        ball_x_direction, ball_y_direction, ball_x, ball_y = update_ball(ball_x_direction, ball_y_direction,
+                                                                         ball_x, ball_y, ball_speed, ball_y_speed)
     ball_x_direction, score, ball_color = check_collisions(ball, player, computer, ball_x_direction, score)
 
     if game_over:
         game_over_text = font.render('Game Over!', True, white, black)
-        screen.blit(game_over_text, (80, 100))
+        screen.blit(game_over_text, (83, 120))
 
         restart_button = pygame.draw.rect(screen, black, [62, 200, 100, 20])
         restart_text = font.render('Press to restart', True, white, black)
-        screen.blit(restart_text, (61, 200))
-
+        screen.blit(restart_text, (68, 200))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -126,9 +129,16 @@ while running:
                 player_speed = 5
                 ball_x_direction = 1
                 ball_y_direction = 1
-                ball_speed = 3
+                ball_speed = 2
                 ball_y_speed = 2
                 score = 0
+
+    if 10 <= player_y <= HEIGHT - 40:
+        player_y += player_speed * player_direction
+    elif player_y > HEIGHT - 40:
+        player_y = HEIGHT - 40
+    elif player_y < 10:
+        player_y = 10
 
     player_y += player_speed * player_direction
     ball_speed = 2 + (score//10)
